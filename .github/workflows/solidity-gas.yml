@@ -1,0 +1,54 @@
+name: Solidity Gas Report
+
+on:
+  push:
+    branches: [ feature/hybrid-anchor-binding, main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  gas-report:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+      
+      - name: Run Forge build
+        run: forge build
+        
+      - name: Run Forge tests with gas report
+        run: forge test --gas-report
+        
+      - name: Check gas thresholds
+        run: |
+          echo "Checking gas thresholds..."
+          forge test --gas-report > gas-report.txt
+          
+          # Extract gas usage for commit function
+          COMMIT_GAS=$(grep -A 5 "commit" gas-report.txt | grep -oP '\d+' | head -1 || echo "0")
+          
+          # Extract gas usage for reveal function  
+          REVEAL_GAS=$(grep -A 5 "reveal" gas-report.txt | grep -oP '\d+' | head -1 || echo "0")
+          
+          echo "Commit gas: $COMMIT_GAS"
+          echo "Reveal gas: $REVEAL_GAS"
+          
+          # Thresholds: commit < 43000, reveal < 125000
+          if [ "$COMMIT_GAS" -gt 43000 ] && [ "$COMMIT_GAS" -ne 0 ]; then
+            echo "❌ Commit gas ($COMMIT_GAS) exceeds threshold of 43000"
+            exit 1
+          fi
+          
+          if [ "$REVEAL_GAS" -gt 125000 ] && [ "$REVEAL_GAS" -ne 0 ]; then
+            echo "❌ Reveal gas ($REVEAL_GAS) exceeds threshold of 125000"
+            exit 1
+          fi
+          
+          echo "✅ Gas thresholds respected"

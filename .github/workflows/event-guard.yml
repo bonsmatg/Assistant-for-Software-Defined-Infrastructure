@@ -1,0 +1,32 @@
+name: Event ABI Guard
+
+on:
+  push:
+    branches: [ feature/hybrid-anchor-binding, main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  event-guard:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Run Forge build
+        run: forge build
+      
+      - name: Check event signatures
+        run: node scripts/abi/extract-events.js
