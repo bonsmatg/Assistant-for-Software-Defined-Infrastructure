@@ -46,3 +46,18 @@ The main idea here to reduce the complexity in using an OpenStack cloud for novi
 
 ## System Diagram
 ![Diagram](https://raw.githubusercontent.com/shank7485/Assistant-for-Software-Defined-Infrastructure/master/docs/Diagram.png)
+
+## Solidity Hybrid Anchor Registry
+
+This repository also includes a Solidity-based commit-reveal ring buffer anchor registry subsystem for tamper-evident data anchoring with root-only global uniqueness guarantees.
+
+**Features:**
+- Commit-reveal pattern with sender binding
+- Root-only uniqueness enforcement
+- Rolling hash accumulator with domain separation (`DOMAIN = keccak256("ANCHOR_V1")`)
+- Optional commit/reveal gating via allowlists
+- Merkle proof verification for anchored data
+- Gas-optimized with CI-enforced thresholds
+- Comprehensive invariant testing
+
+**Documentation:** See [docs/hybrid-anchor-registry.md](docs/hybrid-anchor-registry.md) for full details on architecture, security, and usage.

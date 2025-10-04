@@ -1,2 +1,9 @@
 *.pyc
 database.db
+
+# Foundry / Solidity
+out/
+cache/
+lib/
+broadcast/
+gas-report.txt
